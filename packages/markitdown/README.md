@@ -42,6 +42,13 @@ print(result.text_content)
 ### More Information
 
 For more information, and full documentation, see the project [README.md](https://github.com/microsoft/markitdown) on GitHub.
+### Preview only a short summary
+
+You can show a condensed preview instead of the full Markdown:
+
+```bash
+markitdown myfile.pdf --summary --summary-lines 25
+This prints the first N non-empty lines (default 25) and appends an ellipsis if the output was truncated.
 
 ## Trademarks
 
