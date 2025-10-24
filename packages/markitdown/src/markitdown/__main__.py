@@ -8,6 +8,7 @@ from textwrap import dedent
 from importlib.metadata import entry_points
 from .__about__ import __version__
 from ._markitdown import MarkItDown, StreamInfo, DocumentConverterResult
+from .summary import summarize_markdown
 
 
 def main():
@@ -44,7 +45,19 @@ def main():
             """
         ).strip(),
     )
-
+     # --- summary / preview flags ---
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Print a condensed preview of the converted Markdown instead of the full output.",
+    )
+    parser.add_argument(
+        "--summary-lines",
+        type=int,
+        default=25,
+        metavar="N",
+        help="Max number of non-empty lines to show with --summary (default: 25).",
+    )
     parser.add_argument(
         "-v",
         "--version",
@@ -202,13 +215,18 @@ def main():
 
 def _handle_output(args, result: DocumentConverterResult):
     """Handle output to stdout or file"""
+    # aplica el resumen si el usuario lo pidió
+    markdown = result.markdown
+    if getattr(args, "summary", False):
+        markdown = summarize_markdown(markdown, max_lines=args.summary_lines)
+
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
-            f.write(result.markdown)
+            f.write(markdown)
     else:
         # Handle stdout encoding errors more gracefully
         print(
-            result.markdown.encode(sys.stdout.encoding, errors="replace").decode(
+            markdown.encode(sys.stdout.encoding, errors="replace").decode(
                 sys.stdout.encoding
             )
         )
